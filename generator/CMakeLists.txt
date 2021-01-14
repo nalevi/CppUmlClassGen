@@ -62,9 +62,7 @@ if(USE_LLVM_FAT_LIB)
   llvm_config(generator USE_SHARED ${LLVM_LINK_COMPONENTS})
 endif()
 
-
-
-target_link_libraries(find-class-decls
+target_link_libraries(generator
   LINK_PUBLIC
   ${CLANG_LIBRARY})
 
