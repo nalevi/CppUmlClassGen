@@ -12,10 +12,10 @@ namespace umlgen
 namespace generator
 {
 
-class FindNamedClassVisitor
-  : public clang::RecursiveASTVisitor<FindNamedClassVisitor> {
+class ClangASTVisitor
+  : public clang::RecursiveASTVisitor<ClangASTVisitor> {
 public:
-  explicit FindNamedClassVisitor(clang::ASTContext *Context)
+  explicit ClangASTVisitor(clang::ASTContext *Context)
     : Context(Context) {}
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl *Declaration) { 

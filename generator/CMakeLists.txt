@@ -56,7 +56,7 @@ if(NOT ${LLVM_LIBRARY} STREQUAL "LLVM_LIBRARY-NOTFOUND")
   set(USE_LLVM_FAT_LIB on)
 endif()
 
-add_executable(generator generator.cpp)
+add_executable(generator src/generator.cpp)
 
 if(USE_LLVM_FAT_LIB)
   llvm_config(generator USE_SHARED ${LLVM_LINK_COMPONENTS})
