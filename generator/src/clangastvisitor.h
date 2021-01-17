@@ -1,12 +1,13 @@
 #ifndef UMLGEN_CLANGASTVISITOR_H
 #define UMLGEN_CLANGASTVISITOR_H
 
+#include <iostream>
+
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Basic/Specifiers.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Tooling.h>
-#include <iostream>
 
 namespace umlgen
 {
@@ -14,19 +15,22 @@ namespace generator
 {
 
 class ClangASTVisitor
-  : public clang::RecursiveASTVisitor<ClangASTVisitor> {
+  : public clang::RecursiveASTVisitor<ClangASTVisitor> 
+{
 public:
-  explicit ClangASTVisitor(clang::ASTContext *Context)
-    : Context(Context) {}
+  explicit ClangASTVisitor(clang::ASTContext* ctx_)
+    : _ctx(ctx_) {}
 
-  bool VisitCXXRecordDecl(clang::CXXRecordDecl *Declaration) { 
+  bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
+  { 
     std::cout << "Found class: "
-              << Declaration->getQualifiedNameAsString()
+              << dcl_->getQualifiedNameAsString()
               << std::endl;
 
     std::cout << "FieldDecls: "; 
 
-    for(auto it = Declaration->field_begin(); it != Declaration->field_end(); ++it) {
+    for(auto it = dcl_->field_begin(); it != dcl_->field_end(); ++it)
+    {
        clang::AccessSpecifier visibility = it->getAccess();
 
        std::cout <<  it->getNameAsString()
@@ -41,11 +45,13 @@ public:
     return true;
     }
 
-  bool VisitCXXMethodDecl(clang::CXXMethodDecl *dcl_) {
-    clang::CXXRecordDecl *cppClass = dcl_->getParent();
+  bool VisitCXXMethodDecl(clang::CXXMethodDecl* dcl_) 
+  {
+    clang::CXXRecordDecl* cppClass = dcl_->getParent();
     std::cout << "Found CXXMethod!" << std::endl;
 
-    if(dcl_->isVirtual()) {
+    if(dcl_->isVirtual())
+    {
       std::cout << "Virtual method!" << std::endl;
     }
 
@@ -67,7 +73,7 @@ public:
 
 
 private:
-  clang::ASTContext *Context;
+  clang::ASTContext* _ctx;
 };
 
 } //generator
