@@ -2,6 +2,7 @@
 #define UMLGEN_CLANGASTVISITOR_H
 
 #include <clang/AST/RecursiveASTVisitor.h>
+#include <clang/Basic/Specifiers.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Tooling.h>
@@ -22,6 +23,19 @@ public:
     std::cout << "Found class: "
               << Declaration->getQualifiedNameAsString()
               << std::endl;
+
+    std::cout << "FieldDecls: "; 
+
+    for(auto it = Declaration->field_begin(); it != Declaration->field_end(); ++it) {
+       clang::AccessSpecifier visibility = it->getAccess();
+
+       std::cout <<  it->getNameAsString()
+                 << "(" << (visibility == clang::AS_private
+                           ? "private " : visibility == clang::AS_protected
+                                          ? "protected " : "public " )
+                 << it->getType().getAsString()
+                 << ")" << ", ";
+    }
 
     std::cout << std::endl; 
     return true;
