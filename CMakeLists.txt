@@ -8,4 +8,4 @@ include(Config.cmake)
 include(Functions.cmake)
 
 add_subdirectory(generator)
-
+add_subdirectory(model)
