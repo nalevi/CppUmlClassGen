@@ -64,5 +64,6 @@ endif()
 
 target_link_libraries(generator
   LINK_PUBLIC
-  ${CLANG_LIBRARY})
+  ${CLANG_LIBRARY}
+  ${WT_LIB})
 
