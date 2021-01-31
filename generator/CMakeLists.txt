@@ -15,11 +15,6 @@ if(${CLANG_LIBRARY} STREQUAL "CLANG_LIBRARY-NOTFOUND")
   set(NEED_LIBCLANG_COMPONENT_LIBS on)
 endif()
 
-include_directories(SYSTEM
-  ${LLVM_INCLUDE_DIRS}
-  ${CLANG_INCLUDE_DIRS})
-
-
 if(NEED_LIBCLANG_COMPONENT_LIBS)
   set(CLANG_LIBRARY
     clangTooling
@@ -56,6 +51,17 @@ if(NOT ${LLVM_LIBRARY} STREQUAL "LLVM_LIBRARY-NOTFOUND")
   set(USE_LLVM_FAT_LIB on)
 endif()
 
+#find_library(WT_LIB NAMES wt REQUIRED)
+#message(STATUS "Found Wt: " ${WT_LIB})
+
+include_directories(
+   include
+   ${PROJECT_SOURCE_DIR}/model/include)
+
+include_directories(SYSTEM
+  ${LLVM_INCLUDE_DIRS}
+  ${CLANG_INCLUDE_DIRS})
+
 add_executable(generator src/generator.cpp)
 
 if(USE_LLVM_FAT_LIB)
@@ -65,5 +71,5 @@ endif()
 target_link_libraries(generator
   LINK_PUBLIC
   ${CLANG_LIBRARY}
-  ${WT_LIB})
-
+  ${WT_LIB}
+  model)

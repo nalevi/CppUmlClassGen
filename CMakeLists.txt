@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19.2)
-project(CppUmlClassGen)
+project(CppUmlClassGen CXX)
 
 # Common config stuff
 include(Config.cmake)

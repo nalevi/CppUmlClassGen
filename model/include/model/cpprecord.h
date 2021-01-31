@@ -1,3 +1,6 @@
+#ifndef UMLGEN_MODEL_CPPRECORD_H
+#define UMLGEN_MODEL_CPPRECORD_H
+
 #include <Wt/Dbo/Dbo.h>
 
 #include <string>
@@ -80,3 +83,4 @@ public:
 
 } //model
 } //umlgen
+#endif

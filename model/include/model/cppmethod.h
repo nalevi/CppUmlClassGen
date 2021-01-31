@@ -1,10 +1,12 @@
+#ifndef UMLGEN_MODEL_CPPMETHOD_H
+#define UMLGEN_MODEL_CPPMETHOD_H
+
 #include <Wt/Dbo/Dbo.h>
 
 #include <string>
 
 #include "cpprecord.h"
 #include "visibility.h"
-#include "cppmethodparam.h"
 
 namespace dbo = Wt::Dbo;
 
@@ -13,7 +15,26 @@ namespace umlgen
 namespace model
 {
 
-class CppMethodParam;
+class CppMethodParam
+{
+public:
+  CppMethodParam(const std::string& i_,
+                 const std::string& t_): identifier(i_), type(t_) {}
+
+  std::string identifier;
+  std::string type;
+
+  dbo::ptr<CppMethod> method;
+
+  template<class Action>
+  void persist(Action& a_)
+  {
+    dbo::field(a_, identifier, "identifier");
+    dbo::field(a_, type, "type");
+
+    dbo::belongsTo(a_, method, "name");
+  }
+};
 
 /*
   * This class represents a c++ method in the database.
@@ -58,3 +79,4 @@ public:
 
 } // model
 } // umlgen
+#endif

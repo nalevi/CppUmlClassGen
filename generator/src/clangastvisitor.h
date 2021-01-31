@@ -9,6 +9,10 @@
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Tooling/Tooling.h>
 
+#include <model/cpprecord.h>
+#include <model/cppmethod.h>
+#include <model/cppattribute.h>
+
 namespace umlgen
 {
 namespace generator
