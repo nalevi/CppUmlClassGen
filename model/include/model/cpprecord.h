@@ -32,7 +32,7 @@ public:
   {
     dbo::field(a_, name, "name");
 
-    dbo::hasMany(a_, cppRecords, dbo::ManyToOne, "name");
+    dbo::hasMany(a_, cppRecords, dbo::ManyToOne, "id");
   } 
 
   
@@ -73,7 +73,7 @@ public:
     dbo::field(a_, name, "name");
     dbo::field(a_, type, "type");
 
-    dbo::belongsTo(a_, nsp, "name");
+    dbo::belongsTo(a_, nsp, "cppnamespace");
 
     dbo::hasMany(a_, attrs, dbo::ManyToOne,  "name");
     dbo::hasMany(a_, methods, dbo::ManyToOne, "name");
