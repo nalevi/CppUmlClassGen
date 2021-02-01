@@ -51,7 +51,7 @@ static llvm::cl::extrahelp MoreHelp("\nMore help text...\n");
 
 int main(int argc, const char** argv)
 {
-  bool dbSession = umlgen::generator::startDbSession("umlgen");
+  //bool dbSession = umlgen::generator::startDbSession("umlgen");
  
   clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
   clang::tooling::ClangTool genTool(OptionParser.getCompilations(),

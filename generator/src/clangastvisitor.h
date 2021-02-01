@@ -27,51 +27,57 @@ public:
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
   { 
-    std::cout << "Found class: "
-              << dcl_->getQualifiedNameAsString()
-              << std::endl;
-
-    std::cout << "FieldDecls: "; 
-
-    for(auto it = dcl_->field_begin(); it != dcl_->field_end(); ++it)
+    if(!dcl_->getDeclContext()->isStdNamespace())
     {
-       clang::AccessSpecifier visibility = it->getAccess();
+        std::cout << "Found class: "
+                  << dcl_->getQualifiedNameAsString()
+                  << std::endl;
 
-       std::cout <<  it->getNameAsString()
-                 << "(" << (visibility == clang::AS_private
-                           ? "private " : visibility == clang::AS_protected
-                                          ? "protected " : "public " )
-                 << it->getType().getAsString()
-                 << ")" << ", ";
+        std::cout << "FieldDecls: "; 
+
+        for(auto it = dcl_->field_begin(); it != dcl_->field_end(); ++it)
+        {
+           clang::AccessSpecifier visibility = it->getAccess();
+
+           std::cout <<  it->getNameAsString()
+                     << "(" << (visibility == clang::AS_private
+                               ? "private " : visibility == clang::AS_protected
+                                              ? "protected " : "public " )
+                     << it->getType().getAsString()
+                     << ")" << ", ";
+        }
+    
+        std::cout << std::endl; 
     }
-
-    std::cout << std::endl; 
     return true;
     }
 
   bool VisitCXXMethodDecl(clang::CXXMethodDecl* dcl_) 
   {
-    clang::CXXRecordDecl* cppClass = dcl_->getParent();
-    std::cout << "Found CXXMethod!" << std::endl;
-
-    if(dcl_->isVirtual())
+    if(!dcl_->getDeclContext()->isStdNamespace())
     {
-      std::cout << "Virtual method!" << std::endl;
+        clang::CXXRecordDecl* cppClass = dcl_->getParent();
+        std::cout << "Found CXXMethod!" << std::endl;
+
+        if(dcl_->isVirtual())
+        {
+          std::cout << "Virtual method!" << std::endl;
+        }
+
+        std::cout << "Parent class: "
+                  << cppClass->getQualifiedNameAsString() 
+                  << std::endl; 
+
+        std::cout << "Name: "
+                  << dcl_->getNameInfo().getAsString()
+                  << std::endl;
+
+        std::cout << "Return type: "
+                  << dcl_->getReturnType().getAsString()
+              << std::endl;
+     
+        std::cout << std::endl;
     }
-
-    std::cout << "Parent class: "
-              << cppClass->getNameAsString() 
-              << std::endl; 
-
-    std::cout << "Name: "
-              << dcl_->getNameInfo().getAsString()
-              << std::endl;
-
-    std::cout << "Return type: "
-              << dcl_->getReturnType().getAsString()
-              << std::endl;
-    
-    std::cout << std::endl;
     return true;
   }
 

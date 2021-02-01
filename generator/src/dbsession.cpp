@@ -2,6 +2,7 @@
 
 #include <Wt/Dbo/backend/Postgres.h>
 #include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/Exception.h>
 
 #include <model/cppmethod.h>
 #include <model/cpprecord.h>
@@ -35,6 +36,14 @@ bool startDbSession(const std::string& dbname_)
   session.mapClass<model::CppMethodParam>("cppmethodparam");
 
   // Tries to create tables, if they already exists, it fails.
+  try
+  {
+    session.createTables(); 
+  }
+  catch (dbo::Exception)
+  {
+    std::cerr << "Error creating database scheme: already exists!" << std::endl;
+  }
   session.createTables();
 
   return true;
