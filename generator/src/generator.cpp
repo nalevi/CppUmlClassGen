@@ -51,7 +51,9 @@ static llvm::cl::extrahelp MoreHelp("\nMore help text...\n");
 
 int main(int argc, const char** argv)
 {
-  bool dbSession = umlgen::generator::startDbSession("host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen");
+  // TODO: get the connection string from commandline argument
+  bool dbSession = umlgen::generator::startDbSession(
+    "host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen");
  
   clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
   clang::tooling::ClangTool genTool(OptionParser.getCompilations(),
