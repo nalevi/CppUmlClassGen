@@ -62,7 +62,9 @@ include_directories(SYSTEM
   ${LLVM_INCLUDE_DIRS}
   ${CLANG_INCLUDE_DIRS})
 
-add_executable(generator src/generator.cpp)
+add_executable(generator 
+  src/generator.cpp
+  src/dbsession.cpp)
 
 if(USE_LLVM_FAT_LIB)
   llvm_config(generator USE_SHARED ${LLVM_LINK_COMPONENTS})

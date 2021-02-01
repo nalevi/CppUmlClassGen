@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
@@ -10,6 +11,8 @@
 #include <clang/Tooling/Tooling.h>
 
 #include <llvm/Support/CommandLine.h>
+
+#include <generator/dbsession.h>
 
 #include "clangastvisitor.h" 
 
@@ -45,9 +48,11 @@ static llvm::cl::extrahelp CommonHelp(
                            clang::tooling::CommonOptionsParser::HelpMessage);
 static llvm::cl::extrahelp MoreHelp("\nMore help text...\n");
 
+
 int main(int argc, const char** argv)
 {
-
+  bool dbSession = umlgen::generator::startDbSession("umlgen");
+ 
   clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
   clang::tooling::ClangTool genTool(OptionParser.getCompilations(),
                                     OptionParser.getSourcePathList());
