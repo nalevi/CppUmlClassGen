@@ -24,10 +24,9 @@ namespace model
 class CppAttribute
 {
 public:
-  CppAttribute(const std::string& n_,
-               const Visibility& v_,
-               const std::string& t_): name(n_), visibility(v_), type(t_) {}
-  ~CppAttribute();
+  // CppAttribute(const std::string& n_,
+  //              const Visibility& v_,
+  //              const std::string& t_): name(n_), visibility(v_), type(t_) {}
 
   dbo::ptr<CppRecord> cpprec;
 

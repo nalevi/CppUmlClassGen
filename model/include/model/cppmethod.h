@@ -18,8 +18,8 @@ namespace model
 class CppMethodParam
 {
 public:
-  CppMethodParam(const std::string& i_,
-                 const std::string& t_): identifier(i_), type(t_) {}
+  //CppMethodParam(const std::string& i_,
+  //               const std::string& t_): identifier(i_), type(t_) {}
 
   std::string identifier;
   std::string type;
@@ -46,12 +46,12 @@ public:
 class CppMethod
 {
 public:
-  CppMethod(const std::string& n_,
-            const Visibility& v_,
-            const std::string& rt_,
-            const bool& iv_): 
-              name(n_), visibility(v_), returnType(rt_), isVirtual(iv_) {}
-  ~CppMethod();
+  //CppMethod(const std::string& n_,
+  //          const Visibility& v_,
+  //          const std::string& rt_,
+  //          const bool& iv_): 
+  //            name(n_), visibility(v_), returnType(rt_), isVirtual(iv_) {}
+  //~CppMethod();
 
   dbo::ptr<CppRecord> cpprec;
   dbo::collection< dbo::ptr<CppMethodParam> > params;
@@ -71,7 +71,7 @@ public:
 
     dbo::belongsTo(a_, cpprec, "name");
     
-    dbo::hasMany(a_, params, "name");
+    dbo::hasMany(a_, params, dbo::ManyToOne, "name");
 
   }
 };

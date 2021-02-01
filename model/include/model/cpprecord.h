@@ -18,10 +18,10 @@ class CppRecord;
   * This class represents a NamespaceDecl in the database.
   * attributes: - name: namespace identifier
 */
-class Namespace
+class CppNamespace
 {
 public:
-  Namespace(const std::string& n_): name(n_) {}
+  //CppNamespace(const std::string& n_): name(n_) {}
 
   dbo::collection< dbo::ptr<CppRecord> > cppRecords;
 
@@ -56,11 +56,11 @@ class CppMethod;
 class CppRecord
 {
 public:
-  CppRecord(const RecType& t_,
-         const std::string& n_): type(t_), name(n_) {}
-  ~CppRecord();
+  //CppRecord(const RecType& t_,
+  //       const std::string& n_): type(t_), name(n_) {}
+  //~CppRecord();
 
-  dbo::ptr<Namespace> nsp;
+  dbo::ptr<CppNamespace> nsp;
   dbo::collection< dbo::ptr<CppAttribute> > attrs;
   dbo::collection< dbo::ptr<CppMethod> > methods;
  
@@ -75,8 +75,8 @@ public:
 
     dbo::belongsTo(a_, nsp, "name");
 
-    dbo::hasMany(a_, attrs, "name");
-    dbo::hasMany(a_, methods, "name");
+    dbo::hasMany(a_, attrs, dbo::ManyToOne,  "name");
+    dbo::hasMany(a_, methods, dbo::ManyToOne, "name");
   }
 };
 
