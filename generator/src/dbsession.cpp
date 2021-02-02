@@ -17,22 +17,22 @@ namespace umlgen
 namespace generator
 {
 
-bool startDbSession(const std::string& dbname_, dbo::Session& session_)
+bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> session_)
 {
   std::unique_ptr<dbo::backend::Postgres> postgres{
     new dbo::backend::Postgres(dbname_)};
-  session_.setConnection(std::move(postgres));
+  session_->setConnection(std::move(postgres));
 
-  session_.mapClass<model::CppNamespace>("cppnamespace");
-  session_.mapClass<model::CppRecord>("cpprecord");
-  session_.mapClass<model::CppAttribute>("cppattribute");
-  session_.mapClass<model::CppMethod>("cppmethod");
-  session_.mapClass<model::CppMethodParam>("cppmethodparam");
+  session_->mapClass<model::CppNamespace>("cppnamespace");
+  session_->mapClass<model::CppRecord>("cpprecord");
+  session_->mapClass<model::CppAttribute>("cppattribute");
+  session_->mapClass<model::CppMethod>("cppmethod");
+  session_->mapClass<model::CppMethodParam>("cppmethodparam");
 
   // Tries to create tables, if they already exists, it fails.
   try
   {
-    session_.createTables(); 
+    session_->createTables(); 
   }
   catch (...)
   {

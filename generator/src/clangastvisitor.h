@@ -26,7 +26,7 @@ class ClangASTVisitor
 public:
   explicit ClangASTVisitor(
     clang::ASTContext* ctx_, 
-    Wt::Dbo::Session& dbsession_)
+    std::shared_ptr<Wt::Dbo::Session> dbsession_)
     : _ctx(ctx_), _dbsession(dbsession_) {}
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
@@ -91,7 +91,7 @@ public:
 private:
   clang::ASTContext* _ctx;
 
-  Wt::Dbo::Session _dbsession; 
+  std::shared_ptr<Wt::Dbo::Session> _dbsession; 
 };
 
 } //generator

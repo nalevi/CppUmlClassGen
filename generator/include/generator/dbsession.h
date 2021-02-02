@@ -16,7 +16,7 @@ namespace generator
   * @param dbname_ The name of the database.
   * @param session_ the actual db session.
 */
-bool startDbSession(const std::string& dbname_, Wt::Dbo::Session& session_);
+bool startDbSession(const std::string& dbname_, std::shared_ptr<Wt::Dbo::Session> session_);
 
 } // generator
 } // umlgen

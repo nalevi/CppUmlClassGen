@@ -24,7 +24,7 @@ class ClangASTConsumer : public clang::ASTConsumer
 public:
   explicit ClangASTConsumer(
     clang::ASTContext* ctx_,
-    Wt::Dbo::Session& dbsession_)
+    std::shared_ptr<Wt::Dbo::Session> dbsession_)
     : _visitor(ctx_, dbsession_), _dbsession(dbsession_) {}
 
   virtual void HandleTranslationUnit(clang::ASTContext& ctx_)
@@ -34,13 +34,13 @@ public:
 private:
   umlgen::generator::ClangASTVisitor _visitor;
 
-  Wt::Dbo::Session _dbsession;
+  std::shared_ptr<Wt::Dbo::Session> _dbsession;
 };
 
 class GeneratorActionFactory : public clang::tooling::FrontendActionFactory 
 {
 public:
-  GeneratorActionFactory(Wt::Dbo::Session& dbsession_)
+  GeneratorActionFactory(std::shared_ptr<Wt::Dbo::Session> dbsession_)
   {
     _dbsession = dbsession_;
   }
@@ -55,7 +55,10 @@ private:
   {
     friend class GeneratorActionFactory;
   public:
-    MyGenFrontendAction(Wt::Dbo::Session& dbsession_): _dbsession(dbsession_) {} 
+    MyGenFrontendAction(std::shared_ptr<Wt::Dbo::Session> dbsession_) 
+    {
+      _dbsession = dbsession_;
+    } 
 
     virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
       clang::CompilerInstance& Compiler, llvm::StringRef InFile)
@@ -65,10 +68,10 @@ private:
     }
 
   private:
-    Wt::Dbo::Session _dbsession;
+    std::shared_ptr<Wt::Dbo::Session> _dbsession;
   };
 
-  Wt::Dbo::Session _dbsession;
+  std::shared_ptr<Wt::Dbo::Session> _dbsession;
 
 };
 
@@ -80,13 +83,14 @@ static llvm::cl::extrahelp MoreHelp("\nMore help text...\n");
 
 int main(int argc, const char** argv)
 {
-  Wt::Dbo::Session session;
+  std::shared_ptr<Wt::Dbo::Session> session_ptr(new Wt::Dbo::Session);
+
   // TODO: get the connection string from commandline argument
   bool dbSession = umlgen::generator::startDbSession(
     "host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen",
-    session);
+    session_ptr);
  
-  GeneratorActionFactory factory(session); 
+  GeneratorActionFactory factory(session_ptr); 
 
   clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
   clang::tooling::ClangTool genTool(OptionParser.getCompilations(),
