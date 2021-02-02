@@ -1,7 +1,6 @@
 #include <memory>
 
 #include <Wt/Dbo/backend/Postgres.h>
-#include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/Exception.h>
 
 #include <model/cppmethod.h>
@@ -18,33 +17,29 @@ namespace umlgen
 namespace generator
 {
 
-/**
-  * This function initializes a database session, creates the database schema
-  * if needed.
-  * @param dbname_ The name of the database.
-*/
-bool startDbSession(const std::string& dbname_)
+bool startDbSession(const std::string& dbname_, dbo::Session& session_)
 {
-  std::unique_ptr<dbo::backend::Postgres> postgres{new dbo::backend::Postgres(dbname_)};
-  dbo::Session session;
-  session.setConnection(std::move(postgres));
+  std::unique_ptr<dbo::backend::Postgres> postgres{
+    new dbo::backend::Postgres(dbname_)};
+  session_.setConnection(std::move(postgres));
 
-  session.mapClass<model::CppNamespace>("cppnamespace");
-  session.mapClass<model::CppRecord>("cpprecord");
-  session.mapClass<model::CppAttribute>("cppattribute");
-  session.mapClass<model::CppMethod>("cppmethod");
-  session.mapClass<model::CppMethodParam>("cppmethodparam");
+  session_.mapClass<model::CppNamespace>("cppnamespace");
+  session_.mapClass<model::CppRecord>("cpprecord");
+  session_.mapClass<model::CppAttribute>("cppattribute");
+  session_.mapClass<model::CppMethod>("cppmethod");
+  session_.mapClass<model::CppMethodParam>("cppmethodparam");
 
   // Tries to create tables, if they already exists, it fails.
   try
   {
-    session.createTables(); 
+    session_.createTables(); 
   }
-  catch (dbo::Exception)
+  catch (...)
   {
-    std::cerr << "Error creating database scheme: already exists!" << std::endl;
+    std::cout << "Skipping creating database scheme: already exists!" << std::endl;
+    //session.dropTables();
+    //session.createTables();
   }
-  session.createTables();
 
   return true;
 }

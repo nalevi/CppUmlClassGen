@@ -13,6 +13,8 @@
 #include <model/cppmethod.h>
 #include <model/cppattribute.h>
 
+#include <generator/dbsession.h>
+
 namespace umlgen
 {
 namespace generator
@@ -22,12 +24,16 @@ class ClangASTVisitor
   : public clang::RecursiveASTVisitor<ClangASTVisitor> 
 {
 public:
-  explicit ClangASTVisitor(clang::ASTContext* ctx_)
-    : _ctx(ctx_) {}
+  explicit ClangASTVisitor(
+    clang::ASTContext* ctx_, 
+    Wt::Dbo::Session& dbsession_)
+    : _ctx(ctx_), _dbsession(dbsession_) {}
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
   { 
-    if(!dcl_->getDeclContext()->isStdNamespace())
+    clang::DeclContext* dcontext = dcl_->getParent();
+
+    if(!dcontext->isStdNamespace())
     {
         std::cout << "Found class: "
                   << dcl_->getQualifiedNameAsString()
@@ -84,6 +90,8 @@ public:
 
 private:
   clang::ASTContext* _ctx;
+
+  Wt::Dbo::Session _dbsession; 
 };
 
 } //generator
