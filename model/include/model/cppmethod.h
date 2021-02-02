@@ -32,7 +32,7 @@ public:
     dbo::field(a_, identifier, "identifier");
     dbo::field(a_, type, "type");
 
-    dbo::belongsTo(a_, method, "name");
+    dbo::belongsTo(a_, method, "cppmethod");
   }
 };
 
@@ -69,9 +69,9 @@ public:
     dbo::field(a_, returnType, "returntype");
     dbo::field(a_, isVirtual, "isvirtual");
 
-    dbo::belongsTo(a_, cpprec, "name");
+    dbo::belongsTo(a_, cpprec, "cpprecord");
     
-    dbo::hasMany(a_, params, dbo::ManyToOne, "name");
+    dbo::hasMany(a_, params, dbo::ManyToOne, "id");
 
   }
 };

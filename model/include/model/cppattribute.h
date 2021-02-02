@@ -41,7 +41,7 @@ public:
     dbo::field(a_, visibility, "visibility");
     dbo::field(a_, type, "type");
 
-    dbo::belongsTo(a_, cpprec, "name");
+    dbo::belongsTo(a_, cpprec, "cpprecord");
   }
 };
 

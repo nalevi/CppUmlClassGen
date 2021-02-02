@@ -75,8 +75,8 @@ public:
 
     dbo::belongsTo(a_, nsp, "cppnamespace");
 
-    dbo::hasMany(a_, attrs, dbo::ManyToOne,  "name");
-    dbo::hasMany(a_, methods, dbo::ManyToOne, "name");
+    dbo::hasMany(a_, attrs, dbo::ManyToOne,  "id");
+    dbo::hasMany(a_, methods, dbo::ManyToOne, "id");
   }
 };
 
