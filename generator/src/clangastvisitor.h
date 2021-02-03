@@ -2,6 +2,8 @@
 #define UMLGEN_CLANGASTVISITOR_H
 
 #include <iostream>
+#include <vector>
+#include <stack>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Basic/Specifiers.h>
@@ -28,6 +30,43 @@ public:
     clang::ASTContext* ctx_, 
     std::shared_ptr<Wt::Dbo::Session> dbsession_)
     : _ctx(ctx_), _dbsession(dbsession_) {}
+
+  bool TraverseCXXRecordDecl(clang::CXXRecordDecl* dcl_)
+  {
+    _classesStack.push(dcl_->getNameAsString());
+
+    bool b = Base::TraverseCXXRecordDecl(dcl_);
+
+    if(!_classesStack.top().empty())
+      _classes.push_back(_classesStack.top());
+    _classesStack.pop(); 
+
+    for(auto it: _classes)
+    {
+      std::cout << it << ", ";
+    }
+    std::cout << std::endl;
+    return b;
+  }
+
+  bool TraverseCXXMethodDecl(clang::CXXMethodDecl* dcl_)
+  {
+    _functionStack.push(dcl_->getNameAsString());
+
+    bool b = Base::TraverseCXXMethodDecl(dcl_);
+
+    if(!_functionStack.top().empty())
+      _functions.push_back(_functionStack.top());
+    _functionStack.pop();
+
+    for(auto it: _functions)
+    {
+      std::cout << it << ", ";
+    } 
+    std::cout << std::endl;
+    return b;
+  }
+
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
   { 
@@ -89,9 +128,16 @@ public:
 
 
 private:
+  using Base = clang::RecursiveASTVisitor<ClangASTVisitor>;
   clang::ASTContext* _ctx;
 
   std::shared_ptr<Wt::Dbo::Session> _dbsession; 
+  
+  std::vector<std::string> _classes;
+  std::stack<std::string> _classesStack;
+
+  std::vector<std::string> _functions;
+  std::stack<std::string> _functionStack;
 };
 
 } //generator
