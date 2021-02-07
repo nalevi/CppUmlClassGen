@@ -18,6 +18,13 @@ namespace generator
 */
 bool startDbSession(const std::string& dbname_, std::shared_ptr<Wt::Dbo::Session> session_);
 
+/**
+  * This function converts std::shared_ptr into Wt::Dbo::ptr. This is neccessary
+  * because during the AST traversal, we put shared pointers in stacks (to keep
+  * connection information between different node types ), but we need Dbo 
+  * pointers to persist the AST nodes to the databse at the end.
+  * @param ptr_ the shared pointer which will be converted.
+*/
 template<class T>
 Wt::Dbo::ptr<T> sharedPtrToDboPtr(std::shared_ptr<T> ptr_);
 

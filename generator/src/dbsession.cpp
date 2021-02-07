@@ -47,8 +47,8 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
 template<class T>
 Wt::Dbo::ptr<T> sharedPtrToDboPtr(std::shared_ptr<T> ptr_)
 {
-  T* val = ptr_.get();
-  Wt::Dbo::ptr<T> dboptr = val; 
+  Wt::Dbo::ptr<T> dboptr = ptr_.get();
+  return dboptr;
 }
 
 } //generator
