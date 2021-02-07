@@ -49,7 +49,6 @@ Wt::Dbo::ptr<T> sharedPtrToDboPtr(std::shared_ptr<T> ptr_)
 {
   T* val = ptr_.get();
   Wt::Dbo::ptr<T> dboptr = val; 
-  dboptr = val;
 }
 
 } //generator
