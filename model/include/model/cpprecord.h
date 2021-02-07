@@ -21,7 +21,6 @@ class CppRecord;
 class CppNamespace
 {
 public:
-  //CppNamespace(const std::string& n_): name(n_) {}
 
   dbo::collection< dbo::ptr<CppRecord> > cppRecords;
 
@@ -38,11 +37,16 @@ public:
   
 };
 
+typedef std::shared_ptr<CppNamespace> CppNamespacePtr;
+typedef dbo::ptr<CppNamespace> DboCppNamespacePtr;
+
 enum class RecType
 {
   CLASS = 0,
   STRUCT = 1,
-  UNION = 2
+  UNION = 2,
+  INTERFACE = 3,
+  ENUM = 4
 };
 
 class CppAttribute;
@@ -80,6 +84,8 @@ public:
   }
 };
 
+typedef std::shared_ptr<CppRecord> CppRecordPtr;
+typedef dbo::ptr<CppRecord> DboCppRecordPtr;
 
 } //model
 } //umlgen

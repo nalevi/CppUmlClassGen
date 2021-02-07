@@ -15,6 +15,9 @@ namespace umlgen
 namespace model
 {
 
+typedef std::shared_ptr<CppAttribute> CppAttributePtr;
+typedef dbo::ptr<CppAttribute> DboCppAttributePtr;
+
 /*
   * This class represents a C++ record's attributes.
   * Fields: - name: identifier

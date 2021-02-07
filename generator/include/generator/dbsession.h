@@ -18,6 +18,9 @@ namespace generator
 */
 bool startDbSession(const std::string& dbname_, std::shared_ptr<Wt::Dbo::Session> session_);
 
+template<class T>
+Wt::Dbo::ptr<T> sharedPtrToDboPtr(std::shared_ptr<T> ptr_);
+
 } // generator
 } // umlgen
 #endif

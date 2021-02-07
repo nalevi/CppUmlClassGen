@@ -36,6 +36,9 @@ public:
   }
 };
 
+typedef std::shared_ptr<CppMethodParam> CppMethodParamPtr;
+typedef dbo::ptr<CppMethodParam> DboCppMethodParamPtr;
+
 /*
   * This class represents a c++ method in the database.
   * Fields: - name: identifier
@@ -76,6 +79,8 @@ public:
   }
 };
 
+typedef std::shared_ptr<CppMethod> CppMethodPtr;
+typedef dbo::ptr<CppMethod> DboCppMethodPtr;
 
 } // model
 } // umlgen

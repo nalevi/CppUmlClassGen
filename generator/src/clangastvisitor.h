@@ -31,42 +31,69 @@ public:
     std::shared_ptr<Wt::Dbo::Session> dbsession_)
     : _ctx(ctx_), _dbsession(dbsession_) {}
 
+  bool TraverseNamespaceDecl(clang::NamespaceDecl* dcl_)
+  {
+    _namespacesStack.push(std::make_shared<model::CppNamespace>());
+
+    bool b = Base::TraverseNamespaceDecl(dcl_);
+    
+    if(_namespacesStack.top()->name.empty())
+    {
+      model::DboCppNamespacePtr nsp = sharedPtrToDboPtr(_namespacesStack.top());
+      _dbsession->add(nsp);
+      _namespaces.push_back(nsp);
+    }
+
+    _namespacesStack.pop();
+
+    return b;
+  }
+
   bool TraverseCXXRecordDecl(clang::CXXRecordDecl* dcl_)
   {
-    _classesStack.push(dcl_->getNameAsString());
+    _typesStack.push(std::make_shared<model::CppRecord>());
 
     bool b = Base::TraverseCXXRecordDecl(dcl_);
 
-    if(!_classesStack.top().empty())
-      _classes.push_back(_classesStack.top());
-    _classesStack.pop(); 
-
-    for(auto it: _classes)
+    if(!_typesStack.top()->name.empty())
     {
-      std::cout << it << ", ";
+      model::DboCppRecordPtr record = sharedPtrToDboPtr(_typesStack.top());     
+      _dbsession->add(record);
+      _types.push_back(record);
     }
-    std::cout << std::endl;
+    _typesStack.pop(); 
+    
     return b;
   }
 
   bool TraverseCXXMethodDecl(clang::CXXMethodDecl* dcl_)
   {
-    _functionStack.push(dcl_->getNameAsString());
+    _methodstack.push(std::make_shared<model::CppMethod>());
 
     bool b = Base::TraverseCXXMethodDecl(dcl_);
 
-    if(!_functionStack.top().empty())
-      _functions.push_back(_functionStack.top());
-    _functionStack.pop();
-
-    for(auto it: _functions)
+    if(!_methodstack.top()->name.empty())
     {
-      std::cout << it << ", ";
-    } 
-    std::cout << std::endl;
+      model::DboCppMethodPtr method = sharedPtrToDboPtr(_methodstack.top());
+      _dbsession->add(method);
+      _methods.push_back(method);
+    }
+    _methodstack.pop();
+
     return b;
   }
 
+  bool VisitNamespaceDecl(clang::NamespaceDecl* dcl_)
+  {
+    std::cout << "Found namespace: " << dcl_->getQualifiedNameAsString()
+      << std::endl;
+
+    model::CppNamespacePtr nsptr = _namespacesStack.top();
+ 
+    nsptr->name = dcl_->getNameAsString();
+    
+    return true;
+  }
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
   { 
@@ -94,6 +121,25 @@ public:
     
         std::cout << std::endl; 
     }
+
+    //getting the current namespace node
+    model::CppNamespacePtr nsptr = _namespacesStack.top();
+
+    //getting the actual cpprecord
+    model::CppRecordPtr recptr = _typesStack.top();
+
+    clang::TagTypeKind tagKind = dcl_->getTagKind();
+
+    recptr->name = dcl_->getNameAsString();
+    recptr->nsp = sharedPtrToDboPtr(nsptr); 
+    recptr->type = tagKind == clang::TagTypeKind::TTK_Class ?
+      model::RecType::CLASS : 
+        (tagKind == clang::TagTypeKind::TTK_Struct ?
+          model::RecType::STRUCT : (tagKind == clang::TagTypeKind::TTK_Union ?
+            model::RecType::UNION : (tagKind == clang::TagTypeKind::TTK_Enum ?
+              model::RecType::ENUM : model::RecType::INTERFACE))); 
+    
+    
     return true;
     }
 
@@ -133,11 +179,17 @@ private:
 
   std::shared_ptr<Wt::Dbo::Session> _dbsession; 
   
-  std::vector<std::string> _classes;
-  std::stack<std::string> _classesStack;
+  std::vector<model::DboCppRecordPtr> _types;
+  std::stack<model::CppRecordPtr> _typesStack;
 
-  std::vector<std::string> _functions;
-  std::stack<std::string> _functionStack;
+  std::vector<model::DboCppMethodPtr> _methods;
+  std::stack<model::CppMethodPtr> _methodstack;
+  std::vector<model::DboCppMethodParamPtr> _methodparams;
+
+  std::vector<model::DboCppAttributePtr> _attributes;
+
+  std::stack<model::CppNamespacePtr> _namespacesStack;
+  std::vector<model::DboCppNamespacePtr> _namespaces;
 };
 
 } //generator
