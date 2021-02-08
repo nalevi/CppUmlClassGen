@@ -31,6 +31,34 @@ public:
     std::shared_ptr<Wt::Dbo::Session> dbsession_)
     : _ctx(ctx_), _dbsession(dbsession_) {}
 
+  ~ClangASTVisitor()
+  {
+    dbo::Transaction transaction{*_dbsession.get()};
+
+    // committing namesapces
+    for(auto it: _namespaces)
+    {
+      model::DboCppNamespacePtr nsptr = _dbsession
+        ->add(std::unique_ptr<model::CppNamespace>{new model::CppNamespace()}); 
+
+      nsptr.modify()->name = it->name;
+    }
+
+    // committing cpprecords
+    for(auto it: _types)
+    {
+      model::DboCppRecordPtr record = _dbsession
+        ->add(std::unique_ptr<model::CppRecord>{new model::CppRecord()});
+      record.modify()->name = it->name;
+
+      model::DboCppNamespacePtr nsp = _dbsession->find<model::CppNamespace>()
+        .where("name = ?").bind(it->nsptr->name);
+      record.modify()->type = it->type;
+      record.modify()->nsp = nsp; 
+
+    }
+  }
+
   bool TraverseNamespaceDecl(clang::NamespaceDecl* dcl_)
   {
     _namespacesStack.push(std::make_shared<model::CppNamespace>());
@@ -39,9 +67,7 @@ public:
     
     if(_namespacesStack.top()->name.empty())
     {
-      model::DboCppNamespacePtr nsp = sharedPtrToDboPtr(_namespacesStack.top());
-      _dbsession->add(nsp);
-      _namespaces.push_back(nsp);
+      _namespaces.push_back(_namespacesStack.top());
     }
 
     _namespacesStack.pop();
@@ -57,9 +83,7 @@ public:
 
     if(!_typesStack.top()->name.empty())
     {
-      model::DboCppRecordPtr record = sharedPtrToDboPtr(_typesStack.top());     
-      _dbsession->add(record);
-      _types.push_back(record);
+      _types.push_back(_typesStack.top());
     }
     _typesStack.pop(); 
     
@@ -74,9 +98,7 @@ public:
 
     if(!_methodstack.top()->name.empty())
     {
-      model::DboCppMethodPtr method = sharedPtrToDboPtr(_methodstack.top());
-      _dbsession->add(method);
-      _methods.push_back(method);
+      _methods.push_back(_methodstack.top());
     }
     _methodstack.pop();
 
@@ -131,7 +153,7 @@ public:
     clang::TagTypeKind tagKind = dcl_->getTagKind();
 
     recptr->name = dcl_->getNameAsString();
-    recptr->nsp = sharedPtrToDboPtr(nsptr); 
+    recptr->nsptr = nsptr; 
     recptr->type = tagKind == clang::TagTypeKind::TTK_Class ?
       model::RecType::CLASS : 
         (tagKind == clang::TagTypeKind::TTK_Struct ?
@@ -179,17 +201,17 @@ private:
 
   std::shared_ptr<Wt::Dbo::Session> _dbsession; 
   
-  std::vector<model::DboCppRecordPtr> _types;
+  std::vector<model::CppRecordPtr> _types;
   std::stack<model::CppRecordPtr> _typesStack;
 
-  std::vector<model::DboCppMethodPtr> _methods;
+  std::vector<model::CppMethodPtr> _methods;
   std::stack<model::CppMethodPtr> _methodstack;
-  std::vector<model::DboCppMethodParamPtr> _methodparams;
+  std::vector<model::CppMethodParamPtr> _methodparams;
 
-  std::vector<model::DboCppAttributePtr> _attributes;
+  std::vector<model::CppAttributePtr> _attributes;
 
   std::stack<model::CppNamespacePtr> _namespacesStack;
-  std::vector<model::DboCppNamespacePtr> _namespaces;
+  std::vector<model::CppNamespacePtr> _namespaces;
 };
 
 } //generator

@@ -60,9 +60,6 @@ class CppMethod;
 class CppRecord
 {
 public:
-  //CppRecord(const RecType& t_,
-  //       const std::string& n_): type(t_), name(n_) {}
-  //~CppRecord();
 
   dbo::ptr<CppNamespace> nsp;
   dbo::collection< dbo::ptr<CppAttribute> > attrs;
@@ -82,6 +79,8 @@ public:
     dbo::hasMany(a_, attrs, dbo::ManyToOne,  "id");
     dbo::hasMany(a_, methods, dbo::ManyToOne, "id");
   }
+
+  model::CppNamespacePtr nsptr;
 };
 
 typedef std::shared_ptr<CppRecord> CppRecordPtr;
