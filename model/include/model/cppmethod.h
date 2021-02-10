@@ -77,6 +77,8 @@ public:
     dbo::hasMany(a_, params, dbo::ManyToOne, "id");
 
   }
+
+  model::CppRecordPtr cpprecptr;
 };
 
 typedef std::shared_ptr<CppMethod> CppMethodPtr;

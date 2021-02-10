@@ -1,6 +1,7 @@
 #ifndef UMLGEN_CLANGASTVISITOR_H
 #define UMLGEN_CLANGASTVISITOR_H
 
+#include "model/visibility.h"
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -57,6 +58,21 @@ public:
       record.modify()->nsp = nsp; 
 
     }
+
+    for(auto it: _methods)
+    {
+      model::DboCppMethodPtr method = _dbsession
+        ->add(std::unique_ptr<model::CppMethod>{new model::CppMethod()});
+
+      method.modify()->name = it->name;
+      method.modify()->isVirtual = it->isVirtual;
+      method.modify()->returnType = it->returnType;
+      method.modify()->visibility = it->visibility;
+     
+      model::DboCppRecordPtr rec = _dbsession->find<model::CppRecord>()
+        .where("name = ?").bind(it->cpprecptr->name);
+      method.modify()->cpprec = rec;
+    }
   }
 
   bool TraverseNamespaceDecl(clang::NamespaceDecl* dcl_)
@@ -107,9 +123,6 @@ public:
 
   bool VisitNamespaceDecl(clang::NamespaceDecl* dcl_)
   {
-    std::cout << "Found namespace: " << dcl_->getQualifiedNameAsString()
-      << std::endl;
-
     model::CppNamespacePtr nsptr = _namespacesStack.top();
  
     nsptr->name = dcl_->getNameAsString();
@@ -119,31 +132,6 @@ public:
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl* dcl_) 
   { 
-    clang::DeclContext* dcontext = dcl_->getParent();
-
-    if(!dcontext->isStdNamespace())
-    {
-        std::cout << "Found class: "
-                  << dcl_->getQualifiedNameAsString()
-                  << std::endl;
-
-        std::cout << "FieldDecls: "; 
-
-        for(auto it = dcl_->field_begin(); it != dcl_->field_end(); ++it)
-        {
-           clang::AccessSpecifier visibility = it->getAccess();
-
-           std::cout <<  it->getNameAsString()
-                     << "(" << (visibility == clang::AS_private
-                               ? "private " : visibility == clang::AS_protected
-                                              ? "protected " : "public " )
-                     << it->getType().getAsString()
-                     << ")" << ", ";
-        }
-    
-        std::cout << std::endl; 
-    }
-
     //getting the current namespace node
     model::CppNamespacePtr nsptr = _namespacesStack.top();
 
@@ -161,36 +149,27 @@ public:
             model::RecType::UNION : (tagKind == clang::TagTypeKind::TTK_Enum ?
               model::RecType::ENUM : model::RecType::INTERFACE))); 
     
-    
     return true;
-    }
+  }
 
   bool VisitCXXMethodDecl(clang::CXXMethodDecl* dcl_) 
   {
-    if(!dcl_->getDeclContext()->isStdNamespace())
-    {
-        clang::CXXRecordDecl* cppClass = dcl_->getParent();
-        std::cout << "Found CXXMethod!" << std::endl;
+    // the currentyl iterated cpprecord node
+    model::CppRecordPtr rec = _typesStack.top();
 
-        if(dcl_->isVirtual())
-        {
-          std::cout << "Virtual method!" << std::endl;
-        }
+    // the current cxxmethoddecl 
+    model::CppMethodPtr method = _methodstack.top();
+    clang::AccessSpecifier vis = dcl_->getAccess();
 
-        std::cout << "Parent class: "
-                  << cppClass->getQualifiedNameAsString() 
-                  << std::endl; 
-
-        std::cout << "Name: "
-                  << dcl_->getNameInfo().getAsString()
-                  << std::endl;
-
-        std::cout << "Return type: "
-                  << dcl_->getReturnType().getAsString()
-              << std::endl;
-     
-        std::cout << std::endl;
-    }
+    method->name = dcl_->getNameAsString();
+    method->isVirtual = dcl_->isVirtual();
+    method->returnType = dcl_->getReturnType().getAsString();
+    method->visibility = vis == clang::AccessSpecifier::AS_private ?
+      model::Visibility::PRIVATE : ( vis == clang::AccessSpecifier::AS_protected 
+        ? model::Visibility::PROTECTED : model::Visibility::PUBLIC);
+    std::cout << "** SETTING cpprecptr **" << std::endl;
+    method->cpprecptr = rec;
+    
     return true;
   }
 
