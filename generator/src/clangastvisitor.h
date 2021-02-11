@@ -34,45 +34,82 @@ public:
 
   ~ClangASTVisitor()
   {
-    dbo::Transaction transaction{*_dbsession.get()};
-
-    // committing namesapces
-    for(auto it: _namespaces)
     {
-      model::DboCppNamespacePtr nsptr = _dbsession
-        ->add(std::unique_ptr<model::CppNamespace>{new model::CppNamespace()}); 
+      dbo::Transaction transaction{*_dbsession.get()};
 
-      nsptr.modify()->name = it->name;
-    }
+      // committing namesapces
+      for(auto it: _namespaces)
+      {
+        std::unique_ptr<model::CppNamespace> nsptr{new model::CppNamespace()};
 
-    // committing cpprecords
-    for(auto it: _types)
-    {
-      model::DboCppRecordPtr record = _dbsession
-        ->add(std::unique_ptr<model::CppRecord>{new model::CppRecord()});
-      record.modify()->name = it->name;
+        nsptr->name = it->name;
 
-      model::DboCppNamespacePtr nsp = _dbsession->find<model::CppNamespace>()
-        .where("name = ?").bind(it->nsptr->name);
-      record.modify()->type = it->type;
-      record.modify()->nsp = nsp; 
+        auto nsdbptr =  _dbsession->add(std::move(nsptr));
+      
+        //transaction.commit();
+      }
+      transaction.commit();
 
     }
 
-    for(auto it: _methods)
     {
-      model::DboCppMethodPtr method = _dbsession
-        ->add(std::unique_ptr<model::CppMethod>{new model::CppMethod()});
+      dbo::Transaction transaction{*_dbsession.get()};
 
-      method.modify()->name = it->name;
-      method.modify()->isVirtual = it->isVirtual;
-      method.modify()->returnType = it->returnType;
-      method.modify()->visibility = it->visibility;
+      // committing cpprecords
+      for(auto it: _types)
+      {
+        std::unique_ptr<model::CppRecord> record{new model::CppRecord()};
+        record->name = it->name;
+        record->type = it->type;
+
+
+        model::DboCppNamespacePtr nsp = _dbsession->find<model::CppNamespace>()
+          .where("name = ?").bind(it->nsptr->name);
+        record->nsp = nsp; 
+
+        auto recdbptr =  _dbsession->add(std::move(record));
+      
+      }
+
+      transaction.commit();
+    }
+
+    {
+      dbo::Transaction transaction{*_dbsession.get()};
+
+      for(auto it: _methods)
+      {
+        std::unique_ptr<model::CppMethod> method{new model::CppMethod()};
+
+        method->name = it->name;
+        method->isVirtual = it->isVirtual;
+        method->returnType = it->returnType;
+        method->visibility = it->visibility;
      
-      model::DboCppRecordPtr rec = _dbsession->find<model::CppRecord>()
-        .where("name = ?").bind(it->cpprecptr->name);
-      method.modify()->cpprec = rec;
+        model::DboCppRecordPtr rec = _dbsession->find<model::CppRecord>()
+          .where("name = ?").bind(it->cpprecptr->name);
+        method->cpprec = rec;
+
+        auto methdbptr = _dbsession->add(std::move(method));
+      }
+
+      transaction.commit();
     }
+  }
+
+  bool TraverseCXXMethodDecl(clang::CXXMethodDecl* dcl_)
+  {
+    _methodstack.push(std::make_shared<model::CppMethod>());
+
+    bool b = Base::TraverseCXXMethodDecl(dcl_);
+
+    if(!_methodstack.top()->name.empty())
+    {
+      _methods.push_back(_methodstack.top());
+    }
+    _methodstack.pop();
+
+    return b;
   }
 
   bool TraverseNamespaceDecl(clang::NamespaceDecl* dcl_)
@@ -103,21 +140,6 @@ public:
     }
     _typesStack.pop(); 
     
-    return b;
-  }
-
-  bool TraverseCXXMethodDecl(clang::CXXMethodDecl* dcl_)
-  {
-    _methodstack.push(std::make_shared<model::CppMethod>());
-
-    bool b = Base::TraverseCXXMethodDecl(dcl_);
-
-    if(!_methodstack.top()->name.empty())
-    {
-      _methods.push_back(_methodstack.top());
-    }
-    _methodstack.pop();
-
     return b;
   }
 
@@ -152,13 +174,14 @@ public:
     return true;
   }
 
-  bool VisitCXXMethodDecl(clang::CXXMethodDecl* dcl_) 
+  bool VisitCXXMethodDecl(clang::CXXMethodDecl* dcl_)
   {
     // the currentyl iterated cpprecord node
     model::CppRecordPtr rec = _typesStack.top();
 
     // the current cxxmethoddecl 
     model::CppMethodPtr method = _methodstack.top();
+
     clang::AccessSpecifier vis = dcl_->getAccess();
 
     method->name = dcl_->getNameAsString();
@@ -167,9 +190,8 @@ public:
     method->visibility = vis == clang::AccessSpecifier::AS_private ?
       model::Visibility::PRIVATE : ( vis == clang::AccessSpecifier::AS_protected 
         ? model::Visibility::PROTECTED : model::Visibility::PUBLIC);
-    std::cout << "** SETTING cpprecptr **" << std::endl;
     method->cpprecptr = rec;
-    
+   
     return true;
   }
 

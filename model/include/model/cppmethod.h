@@ -49,12 +49,6 @@ typedef dbo::ptr<CppMethodParam> DboCppMethodParamPtr;
 class CppMethod
 {
 public:
-  //CppMethod(const std::string& n_,
-  //          const Visibility& v_,
-  //          const std::string& rt_,
-  //          const bool& iv_): 
-  //            name(n_), visibility(v_), returnType(rt_), isVirtual(iv_) {}
-  //~CppMethod();
 
   dbo::ptr<CppRecord> cpprec;
   dbo::collection< dbo::ptr<CppMethodParam> > params;

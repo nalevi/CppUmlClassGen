@@ -95,7 +95,7 @@ int main(int argc, const char** argv)
   clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
   clang::tooling::ClangTool genTool(OptionParser.getCompilations(),
                                     OptionParser.getSourcePathList());
-  return genTool.run(&factory);
-         //clang::tooling::newFrontendActionFactoryctionFactory<GeneratorActionFactory>()
-         //              .get());
+  bool res = genTool.run(&factory);
+
+  return res;
 }

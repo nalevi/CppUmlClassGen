@@ -29,6 +29,8 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
   session_->mapClass<model::CppMethod>("cppmethod");
   session_->mapClass<model::CppMethodParam>("cppmethodparam");
 
+  dbo::Transaction transaction(*session_.get());
+
   // Tries to create tables, if they already exists, it fails.
   try
   {
@@ -41,6 +43,7 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
     //session.createTables();
   }
 
+  transaction.commit();
   return true;
 }
 
