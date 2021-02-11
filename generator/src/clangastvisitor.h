@@ -118,7 +118,7 @@ public:
 
     bool b = Base::TraverseNamespaceDecl(dcl_);
     
-    if(_namespacesStack.top()->name.empty())
+    if(_namespacesStack.top())
     {
       _namespaces.push_back(_namespacesStack.top());
     }
@@ -134,7 +134,7 @@ public:
 
     bool b = Base::TraverseCXXRecordDecl(dcl_);
 
-    if(!_typesStack.top()->name.empty())
+    if(_typesStack.top())
     {
       _types.push_back(_typesStack.top());
     }
@@ -179,9 +179,12 @@ public:
     // the currentyl iterated cpprecord node
     model::CppRecordPtr rec = _typesStack.top();
 
-    // the current cxxmethoddecl 
-    model::CppMethodPtr method = _methodstack.top();
+    if(_methodstack.empty())
+    {
+      _methodstack.push(std::make_shared<model::CppMethod>());
+    }
 
+    model::CppMethodPtr method = _methodstack.top(); 
     clang::AccessSpecifier vis = dcl_->getAccess();
 
     method->name = dcl_->getNameAsString();
