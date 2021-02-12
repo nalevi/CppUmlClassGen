@@ -21,6 +21,7 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
 {
   std::unique_ptr<dbo::backend::Postgres> postgres{
     new dbo::backend::Postgres(dbname_)};
+  postgres->setProperty("show-queries","true");
   session_->setConnection(std::move(postgres));
 
   session_->mapClass<model::CppNamespace>("cppnamespace");
@@ -29,21 +30,23 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
   session_->mapClass<model::CppMethod>("cppmethod");
   session_->mapClass<model::CppMethodParam>("cppmethodparam");
 
-  dbo::Transaction transaction(*session_.get());
 
   // Tries to create tables, if they already exists, it fails.
   try
   {
+    std::cout << "Creating database scheme..." << std::endl;
     session_->createTables(); 
+  }
+  catch(dbo::Exception& ex)
+  {
+    std::cerr << "SQLERROR code: " << ex.code() << std::endl;
+    return false;
   }
   catch (...)
   {
     std::cout << "Skipping creating database scheme: already exists!" << std::endl;
-    //session.dropTables();
-    //session.createTables();
   }
 
-  transaction.commit();
   return true;
 }
 

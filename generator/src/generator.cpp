@@ -87,15 +87,22 @@ int main(int argc, const char** argv)
 
   // TODO: get the connection string from commandline argument
   bool dbSession = umlgen::generator::startDbSession(
-    "host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen",
+    "host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen_test",
     session_ptr);
  
-  GeneratorActionFactory factory(session_ptr); 
+  if(dbSession)
+  {
 
-  clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
-  clang::tooling::ClangTool genTool(OptionParser.getCompilations(),
+    GeneratorActionFactory factory(session_ptr); 
+
+    clang::tooling::CommonOptionsParser OptionParser(argc, argv, GenToolCategory);
+    clang::tooling::ClangTool genTool(OptionParser.getCompilations(),
                                     OptionParser.getSourcePathList());
-  bool res = genTool.run(&factory);
+    bool res = genTool.run(&factory);
 
-  return res;
+    return res;
+  }
+  else {
+    return 1;
+  }
 }
