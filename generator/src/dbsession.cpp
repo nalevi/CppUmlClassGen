@@ -40,7 +40,7 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
   catch(dbo::Exception& ex)
   {
     std::cerr << "SQLERROR code: " << ex.code() << std::endl;
-    return false;
+    return false; 
   }
   catch (...)
   {
