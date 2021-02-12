@@ -87,7 +87,8 @@ int main(int argc, const char** argv)
 
   // TODO: get the connection string from commandline argument
   bool dbSession = umlgen::generator::startDbSession(
-    "host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen_test",
+    //"host=127.0.0.1 user=test password=1234 port=5432 dbname=umlgen_test",
+    "umlgen.db",
     session_ptr);
  
   if(dbSession)

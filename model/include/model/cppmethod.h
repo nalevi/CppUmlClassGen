@@ -68,7 +68,7 @@ public:
 
     dbo::belongsTo(a_, cpprec, "cpprecord");
     
-    dbo::hasMany(a_, params, dbo::ManyToOne, "id");
+    dbo::hasMany(a_, params, dbo::ManyToOne);
 
   }
 

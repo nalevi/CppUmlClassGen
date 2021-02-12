@@ -31,7 +31,7 @@ public:
   {
     dbo::field(a_, name, "name");
 
-    dbo::hasMany(a_, cppRecords, dbo::ManyToOne, "id");
+    dbo::hasMany(a_, cppRecords, dbo::ManyToOne);
   } 
 
   
@@ -76,8 +76,8 @@ public:
 
     dbo::belongsTo(a_, nsp, "cppnamespace");
 
-    dbo::hasMany(a_, attrs, dbo::ManyToOne,  "id");
-    dbo::hasMany(a_, methods, dbo::ManyToOne, "id");
+    dbo::hasMany(a_, attrs, dbo::ManyToOne);
+    dbo::hasMany(a_, methods, dbo::ManyToOne);
   }
 
   model::CppNamespacePtr nsptr;
