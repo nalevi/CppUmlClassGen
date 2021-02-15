@@ -10,7 +10,7 @@ enum class Visibility
 {
   PUBLIC = 0,
   PROTECTED = 1,
-  PRIVATE = 3
+  PRIVATE = 2
 };
 
 } // model

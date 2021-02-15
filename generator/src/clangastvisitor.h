@@ -95,6 +95,43 @@ public:
 
       transaction.commit();
     }
+
+    {
+      dbo::Transaction transaction{*_dbsession.get()};
+
+      for(auto it : _methodparams)
+      {
+        std::unique_ptr<model::CppMethodParam> methodparam{new model::CppMethodParam()};
+
+        methodparam->identifier = it->identifier;
+        methodparam->type = it->type;
+
+        model::DboCppMethodPtr method = _dbsession->find<model::CppMethod>()
+          .where("name = ?").bind(it->methodptr->name);
+        
+        methodparam->method = method;
+        auto methdparamptr = _dbsession->add(std::move(methodparam)); 
+      }
+    }
+
+    {
+      dbo::Transaction transaction{*_dbsession.get()};
+
+      for(auto it : _attributes)
+      {
+        std::unique_ptr<model::CppAttribute> attribute{new model::CppAttribute()};
+
+        attribute->name = it->name;
+        attribute->type = it->type;
+        attribute->visibility = it->visibility;
+
+        model::DboCppRecordPtr rec = _dbsession->find<model::CppRecord>()
+          .where("name = ?").bind(it->recptr->name);
+
+        attribute->cpprec = rec;
+        auto cppattrptr = _dbsession->add(std::move(attribute));
+      }
+    }
   }
 
   bool TraverseCXXMethodDecl(clang::CXXMethodDecl* dcl_)
@@ -170,6 +207,23 @@ public:
           model::RecType::STRUCT : (tagKind == clang::TagTypeKind::TTK_Union ?
             model::RecType::UNION : (tagKind == clang::TagTypeKind::TTK_Enum ?
               model::RecType::ENUM : model::RecType::INTERFACE))); 
+
+    //Getting the fields
+    for(auto it = dcl_->field_begin(); it != dcl_->field_end(); ++it)
+    {
+      model::CppAttributePtr attr = std::make_shared<model::CppAttribute>();
+      clang::AccessSpecifier vis = it->getAccess();
+
+      attr->name = it->getNameAsString();
+      attr->type = it->getType().getAsString();
+      attr->visibility = vis == clang::AccessSpecifier::AS_private ? 
+        model::Visibility::PRIVATE : (vis == clang::AccessSpecifier::AS_protected ? 
+          model::Visibility::PROTECTED : model::Visibility::PUBLIC );
+      model::Visibility debug = attr->visibility; 
+      attr->recptr = recptr;
+
+      _attributes.push_back(attr);
+    }
     
     return true;
   }
@@ -194,6 +248,18 @@ public:
       model::Visibility::PRIVATE : ( vis == clang::AccessSpecifier::AS_protected 
         ? model::Visibility::PROTECTED : model::Visibility::PUBLIC);
     method->cpprecptr = rec;
+
+    //Getting the parameters
+    for(auto it : dcl_->parameters())
+    {
+      model::CppMethodParamPtr par = std::make_shared<model::CppMethodParam>();
+      
+      par->identifier = it->getNameAsString(); 
+      par->type = it->getType().getAsString();
+      par->methodptr = method;
+
+      _methodparams.push_back(par);
+    }
    
     return true;
   }

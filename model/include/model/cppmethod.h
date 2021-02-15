@@ -15,6 +15,10 @@ namespace umlgen
 namespace model
 {
 
+class CppMethod;
+typedef std::shared_ptr<CppMethod> CppMethodPtr;
+typedef dbo::ptr<CppMethod> DboCppMethodPtr;
+
 class CppMethodParam
 {
 public:
@@ -34,6 +38,8 @@ public:
 
     dbo::belongsTo(a_, method, "cppmethod");
   }
+
+  model::CppMethodPtr methodptr;
 };
 
 typedef std::shared_ptr<CppMethodParam> CppMethodParamPtr;
@@ -75,8 +81,6 @@ public:
   model::CppRecordPtr cpprecptr;
 };
 
-typedef std::shared_ptr<CppMethod> CppMethodPtr;
-typedef dbo::ptr<CppMethod> DboCppMethodPtr;
 
 } // model
 } // umlgen

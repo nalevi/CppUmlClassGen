@@ -1,6 +1,7 @@
 #include <memory>
 
 #include <Wt/Dbo/backend/Sqlite3.h>
+#include <Wt/Dbo/backend/Postgres.h>
 #include <Wt/Dbo/Exception.h>
 
 #include <model/cppmethod.h>
@@ -21,8 +22,13 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
 {
   std::unique_ptr<dbo::backend::Sqlite3> sqlite3{
     new dbo::backend::Sqlite3(dbname_)};
-  sqlite3->setProperty("show-queries","true");
+  //sqlite3->setProperty("show-queries","true");
   session_->setConnection(std::move(sqlite3));
+  
+  /*std::unique_ptr<dbo::backend::Postgres> postgres{
+    new dbo::backend::Postgres(dbname_)};
+  postgres->setProperty("show-queries","true");
+  session_->setConnection(std::move(postgres));*/
 
   session_->mapClass<model::CppNamespace>("cppnamespace");
   session_->mapClass<model::CppRecord>("cpprecord");
@@ -42,13 +48,15 @@ bool startDbSession(const std::string& dbname_, std::shared_ptr<dbo::Session> se
     if(!ex.code().empty())
     {
       std::cerr << "SQLERROR code: " << ex.code() << std::endl;
+      return false;
     }
     else 
     {
       std::cout << "Skipping database scheme creation: already exists!" << std::endl;
+      session_->dropTables();
+      session_->createTables();
     }
 
-    return false; 
   }
   catch (...)
   {
