@@ -51,9 +51,12 @@ if(NOT ${LLVM_LIBRARY} STREQUAL "LLVM_LIBRARY-NOTFOUND")
   set(USE_LLVM_FAT_LIB on)
 endif()
 
+
+
 include_directories(
    include
-   ${PROJECT_SOURCE_DIR}/model/include)
+   ${PROJECT_SOURCE_DIR}/model/include
+   ${PROJECT_SOURCE_DIR}/util/include)
 
 include_directories(SYSTEM
   ${LLVM_INCLUDE_DIRS}
@@ -70,4 +73,5 @@ endif()
 target_link_libraries(generator
   LINK_PUBLIC
   ${CLANG_LIBRARY}
-  model)
+  model
+  util)
